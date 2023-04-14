@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
+from django.utils.text import slugify
 from django.contrib.auth.models import User
+
 
 # По умолчанию для запросов используется менеджер objects, который выбирает все 
 # объекты из базы данных.
@@ -24,7 +27,8 @@ class Post(models.Model):
         PUBLISHED = 'PB', 'Published'
 
     title = models.CharField(max_length=250, verbose_name='Title')
-    slug = models.SlugField(max_length=250, verbose_name='Slug')
+    slug = models.SlugField(max_length=250, verbose_name='Slug',
+                            unique_for_date='publish')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='blog_posts')
@@ -53,6 +57,23 @@ class Post(models.Model):
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
 
-
+    def get_absolute_url(self):
+        """Создать ссылку на каждый объект модели 
+        """
+        # core - urls.py -> app_name
+        # post_detail - urls.py -> name == post_detail
+        return reverse("core:post_detail", 
+                       args=[self.publish.year,
+                             self.publish.month,
+                             self.publish.day,
+                             self.slug])
+    
+    # Создадим slug-field автоматически; дополним метод save
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(Post, self).save(*args, **kwargs)
+    
+    
+    
     def __str__(self) -> str:
         return self.title
