@@ -141,4 +141,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ######################################
 # EMAIL Configuration
 ######################################
+EMAIL_SITE_ADDRESS = 'my_blog@gmail.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
