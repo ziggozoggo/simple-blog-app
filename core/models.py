@@ -72,8 +72,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super(Post, self).save(*args, **kwargs)
-    
-    
+     
     
     def __str__(self) -> str:
         return self.title

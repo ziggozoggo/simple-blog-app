@@ -31,6 +31,9 @@ class TestViews(TestCase):
             status='PB',
         )
 
+        self.share_post_url = reverse('core:post_share',
+                                      args=[self.post.id])
+
     def test_posts_list_view(self):
         """Тест  GET view post_list
         """
@@ -44,3 +47,19 @@ class TestViews(TestCase):
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/post/detail.html')
+
+    def test_post_share_view_get(self):
+        """Проверка GET view share post
+        """
+        response = self.client.get(self.share_post_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/post/share.html')
+    
+    def test_post_share_view_post(self):
+        """Проверка POST view share post
+        Не проверяет заполнение формы!
+        """
+        response = self.client.post(self.share_post_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/post/share.html')
+
