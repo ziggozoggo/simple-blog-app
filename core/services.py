@@ -1,4 +1,5 @@
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.core.handlers.wsgi import WSGIRequest
@@ -49,3 +50,11 @@ def send_share_post_via_email(post: Post, form: EmailPostForm, request: WSGIRequ
     message = f"Read {post.title} at {post_url}\n\n"\
         f"{cd['name']}\'s comments: {cd['comments']}"
     send_mail(subject, message, settings.EMAIL_SITE_ADDRESS, [cd['to']])
+
+
+def get_published_post_from_db(post_id):
+    """Получить опубликованный пост по ИД либо вернуть HTTP 404
+    """
+    post = get_object_or_404(Post, id=post_id,
+                            status=Post.Status.PUBLISHED)
+    return post

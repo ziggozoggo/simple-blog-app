@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
-from core.views import post_list, post_detail, post_share
+from core.views import post_list, post_detail, post_share, post_comment
 
 class TestUrls(SimpleTestCase):
     """Тестирование доступности urls
@@ -24,6 +24,12 @@ class TestUrls(SimpleTestCase):
         url = reverse('core:post_share',
                       args=['5'])
         self.assertEqual(resolve(url).func, post_share)
+
+    def test_post_comment_resolve(self):
+        """Проверка url core:post_comment
+        """
+        url = reverse('core:post_comment', args=['5'])
+        self.assertEqual(resolve(url).func, post_comment)
 
 
 

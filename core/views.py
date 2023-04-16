@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
-from django.core.mail import send_mail
-from core.services import data_list_paginator, send_share_post_via_email
-from .models import Post
-from .forms import EmailPostForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from core.services import data_list_paginator, send_share_post_via_email, get_published_post_from_db
+from django.core.handlers.wsgi import WSGIRequest
+from .models import Post, Comment
+from .forms import EmailPostForm, CommentForm
 
 
 def post_list(request):
@@ -25,16 +26,25 @@ def post_detail(request, year, month, day, post):
                              publish__year=year,
                              publish__month=month,
                              publish__day=day)
+    # List of active comments for post_id
+    comments = post.comments.filter(active=True)
+    form = CommentForm()
+
+    context = {
+        'post': post,
+        'comments': comments,
+        'form': form
+    }
+    
     return render(request,
                   'core/post/detail.html',
-                  {'post': post})
+                  context)
 
 
 def post_share(request, post_id):
     """Рекомендовать пост другому пользователю по email
     """
-    post = get_object_or_404(Post, id=post_id,
-                             status=Post.Status.PUBLISHED)
+    post = get_published_post_from_db(post_id)
     sent = False
 
     if request.method == 'POST':
@@ -52,3 +62,25 @@ def post_share(request, post_id):
     }
 
     return render(request, 'core/post/share.html', context)
+
+# Допускается только POST запрос
+# При использовании другого метода вернётся статус HTTP 405
+@require_POST
+def post_comment(request:WSGIRequest, post_id):
+    """Добавить комментарий к посту
+    """
+    post = get_published_post_from_db(post_id)
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.save()
+        # После коммита возвращаем на страницу поста с новым комментарием
+        return redirect(post.get_absolute_url())
+    
+    context = {
+        'post': post,
+        'form': form,
+    }
+
+    return render(request, 'core/post/comment.html', context)

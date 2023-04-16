@@ -33,6 +33,8 @@ class TestViews(TestCase):
 
         self.share_post_url = reverse('core:post_share',
                                       args=[self.post.id])
+        self.post_comment_url = reverse('core:post_comment',
+                                        args=[self.post.id])
 
     def test_posts_list_view(self):
         """Тест  GET view post_list
@@ -54,7 +56,7 @@ class TestViews(TestCase):
         response = self.client.get(self.share_post_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/post/share.html')
-    
+
     def test_post_share_view_post(self):
         """Проверка POST view share post
         Не проверяет заполнение формы!
@@ -63,3 +65,12 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/post/share.html')
 
+    def test_post_comment(self):
+        """Проверка view добавления комметания
+        """
+        get_response = self.client.get(self.post_comment_url)
+        post_response = self.client.post(self.post_comment_url)
+
+        self.assertEqual(get_response.status_code, 405)
+        self.assertEqual(post_response.status_code, 200)
+        self.assertTemplateUsed(post_response, 'core/post/comment.html')
