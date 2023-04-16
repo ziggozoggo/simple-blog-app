@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
 
 # По умолчанию для запросов используется менеджер objects, который выбирает все 
@@ -33,6 +34,7 @@ class Post(models.Model):
                                on_delete=models.CASCADE,
                                related_name='blog_posts')
     body = models.TextField(verbose_name='Content')
+    tags = TaggableManager()
     publish = models.DateTimeField(
         default=timezone.now, verbose_name='Publish Date')
     created = models.DateTimeField(
@@ -99,3 +101,8 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.name} on {self.post}'
+    
+
+
+
+

@@ -4,13 +4,15 @@ from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
+from django.db.models import Count
+from taggit.models import Tag
 from core.models import Post
 from core.forms import EmailPostForm
 
 
 def data_list_paginator(data_list: QuerySet,
-                        records_per_page: int,
                         request: WSGIRequest,
+                        records_per_page=settings.PAGINATOR_POSTS_PER_PAGE,
                         req_param='page') -> Page:
     """Реализует пагинатор для переданного списка объектов Queryset
 
@@ -58,3 +60,28 @@ def get_published_post_from_db(post_id):
     post = get_object_or_404(Post, id=post_id,
                             status=Post.Status.PUBLISHED)
     return post
+
+def get_similar_posts(post: Post) -> QuerySet:
+    """Получить список похожих постов
+    """
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
+
+    return similar_posts
+
+def get_list_post(tag_slug):
+    """Получить список постов и, если указан тэг - отфильтровать 
+    список по этому тэгу.
+    """
+    post_list = Post.published.all()
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        post_list = post_list.filter(tags__in=[tag])
+        return post_list, tag
+    return post_list, tag
+
+
+
+    

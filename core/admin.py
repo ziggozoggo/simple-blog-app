@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Post, Comment
 
 # Подключение модели к админке по умолчанию:
-# admin.site.register(Post)
+# admin.site.register(Tag)
 
 # Расширенное управление моделью в админке
 @admin.register(Post)

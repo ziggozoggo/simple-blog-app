@@ -4,15 +4,37 @@
 
 {% block content %}
     <h1>{{ post.title }}</h1>
+    
+        <p class="tags">
+            Tags:
+            {% for tag in tags %}
+                <a href="{% url "core:post_list_by_tag" tag.slug %}">
+                    {{ tag.name }}
+                </a>
+                {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    
         <p class="date">
             Published {{ post.publish }} by {{ post.author }}
         </p>
+
     {{ post.body|linebreaks }}
     <p>
         <a href="{% url "core:post_share" post.id%}">
             Share this post
         </a>
     </p>
+
+    <h2>Similar posts</h2>
+    {% for post in similar_posts %}
+        <p>
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </p>
+    {% empty %}
+        Tere are no similar posts yet.
+    {% endfor %}
+
     {% with comments.count as total_comments  %}
         <h2>
             {{ total_comments }} comment{{ total_comments|pluralize }}

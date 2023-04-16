@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 3rd party Apps
     'django_extensions',
+    'taggit',
     # My apps
     'core.apps.CoreConfig',
 ]
@@ -143,3 +144,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ######################################
 EMAIL_SITE_ADDRESS = 'my_blog@gmail.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+######################################
+# PAGINATOR Configuration
+######################################
+PAGINATOR_POSTS_PER_PAGE = 3
