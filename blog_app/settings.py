@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'taggit',
     # My apps
     'core.apps.CoreConfig',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -149,3 +150,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # PAGINATOR Configuration
 ######################################
 PAGINATOR_POSTS_PER_PAGE = 3
+
+######################################
+# LOGIN Configuration
+######################################
+LOGIN_REDIRECT_URL = 'core:post_list'
+LOGOUT_REDIRECT_URL = 'core:post_list'
