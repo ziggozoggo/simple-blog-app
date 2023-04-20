@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
 from . import services
 from django.core.handlers.wsgi import WSGIRequest
 from .models import Post
-from .forms import EmailPostForm, CommentForm
+from .forms import EmailPostForm, CommentForm, PostForm
 
 
 def post_list(request, tag_slug=None):
@@ -25,10 +27,10 @@ def post_list(request, tag_slug=None):
 
 
 def post_detail(request, year, month, day, post):
-    """Вывести данные заданного опубликованного поста
+    """Вывести данные указанного опубликованного поста
     """
     post = get_object_or_404(Post,
-                             status=Post.Status.PUBLISHED,
+                             # status=Post.Status.PUBLISHED,
                              slug=post,
                              publish__year=year,
                              publish__month=month,
@@ -99,3 +101,32 @@ def post_comment(request: WSGIRequest, post_id):
     }
 
     return render(request, 'core/post/comment.html', context)
+
+@login_required(login_url='account:login')
+def create_post(request: WSGIRequest):
+    """Создание новой записи блога
+    """
+    form = PostForm()
+
+    if request.method == 'POST':
+        current_datetime = datetime.now()
+        form = PostForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.author = request.user
+            print(obj.author)
+            obj.save()
+            # https://django-taggit.readthedocs.io/en/latest/forms.html
+            form.save_m2m()
+            # return redirect('core:post_list')
+            return redirect('core:post_detail', 
+                            year=current_datetime.year, 
+                            month=current_datetime.month,
+                            day=current_datetime.day,
+                            post=obj.slug)
+    
+    context = {
+        'form': form
+    }
+    return render(request, 'core/post/post_form.html', context)
+            

@@ -1,5 +1,6 @@
 from django import forms
-from . models import Comment
+from taggit.forms import TagField
+from . models import Comment, Post
 
 class EmailPostForm(forms.Form):
     """Форма для создания и отправки рекомендации на пост по e-mail
@@ -15,3 +16,11 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['name', 'email', 'body']
+
+class PostForm(forms.ModelForm):
+    """Форма поста"""
+    # tags = TagField()
+    
+    class Meta:
+        model = Post
+        fields = ['title', 'body', 'tags', 'status']
